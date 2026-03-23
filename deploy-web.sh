@@ -7,8 +7,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
-APP_SRC="/Users/edgarfernandes/comfydeploy/apps/app"
-INFISICAL_ENV_LOCAL="/Users/edgarfernandes/comfydeploy/.env.infisical"
+APP_SRC="/Users/edgarfernandes/comfydeploy_private_work/apps/app"
 VPS_HOST="impactframes-vps"
 SERVICE_NAME="comfymode-comfydeployweb-fyjrwy"
 DEPLOY_USER="${DEPLOY_USER:-root}"
@@ -35,14 +34,10 @@ tar --exclude='.git' \
     -cf "$TAR_PATH" -C "$APP_SRC" .
 
 # ---------------------------------------------------------------------------
-# Step 2: Upload Source and Secrets to VPS
+# Step 2: Upload to VPS
 # ---------------------------------------------------------------------------
-echo "Uploading Source to VPS (${VPS_HOST}) ..."
+echo "Uploading to VPS (${VPS_HOST}) ..."
 scp -o StrictHostKeyChecking=no "$TAR_PATH" "${DEPLOY_USER}@${VPS_HOST}:/tmp/"
-
-echo "Uploading Secrets to VPS (${VPS_HOST}) ..."
-scp -o StrictHostKeyChecking=no "$INFISICAL_ENV_LOCAL" "${DEPLOY_USER}@${VPS_HOST}:/etc/comfydeploy/.env.infisical"
-ssh -o StrictHostKeyChecking=no "${DEPLOY_USER}@${VPS_HOST}" "chown root:root /etc/comfydeploy/.env.infisical && chmod 600 /etc/comfydeploy/.env.infisical"
 
 # ---------------------------------------------------------------------------
 # Step 3: Build and update service on VPS
