@@ -67,10 +67,23 @@ ssh -o StrictHostKeyChecking=no "${DEPLOY_USER}@${VPS_HOST}" <<EOF
     "/tmp/comfydeploy-web-\${TAG}"
 
   echo "==> Updating Swarm service"
-  docker service update \
-    --image "\${SERVICE_NAME}:\${TAG}" \
-    --detach=false \
-    "\${SERVICE_NAME}"
+  if docker service ls --format '{{.Name}}' | grep -q "^${SERVICE_NAME}$"; then
+    docker service update \
+      --image "${SERVICE_NAME}:${TAG}" \
+      --mount-add type=bind,source=/etc/comfydeploy/.env.infisical,target=/etc/comfydeploy/.env.infisical \
+      --cap-add CAP_DAC_OVERRIDE \
+      --detach=false \
+      "${SERVICE_NAME}"
+  else
+    echo "Service does not exist, creating new one..."
+    docker service create \
+      --name "${SERVICE_NAME}" \
+      --network dokploy-network \
+      --mount type=bind,source=/etc/comfydeploy/.env.infisical,target=/etc/comfydeploy/.env.infisical \
+      --cap-add CAP_DAC_OVERRIDE \
+      --detach=false \
+      "${SERVICE_NAME}:${TAG}"
+  fi
 
   echo "==> Done. Image: \${SERVICE_NAME}:\${TAG}"
   rm -f "/tmp/comfydeploy-web-\${TAG}.tar"

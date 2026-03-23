@@ -33,7 +33,7 @@ scp -o StrictHostKeyChecking=no "$TAR_PATH" "${DEPLOY_USER}@${VPS_HOST}:/tmp/"
 
 echo "Uploading Secrets to VPS (${VPS_HOST}) ..."
 scp -o StrictHostKeyChecking=no "$INFISICAL_ENV_LOCAL" "${DEPLOY_USER}@${VPS_HOST}:/etc/comfydeploy/.env.infisical"
-ssh -o StrictHostKeyChecking=no "${DEPLOY_USER}@${VPS_HOST}" "chown root:root /etc/comfydeploy/.env.infisical && chmod 600 /etc/comfydeploy/.env.infisical"
+ssh -o StrictHostKeyChecking=no "${DEPLOY_USER}@${VPS_HOST}" "chown root:root /etc/comfydeploy/.env.infisical && chmod 644 /etc/comfydeploy/.env.infisical"
 
 # ---------------------------------------------------------------------------
 # Step 3: Build and update service on VPS
